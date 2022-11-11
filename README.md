@@ -22,11 +22,19 @@ However, when using the QWaylandCompositor,
 * The movable range of the mouse cursor is (0, -424)-(600, 600) (in the coordinate system before rotation)
 * The display origin of the window becomes (0, -424) (in the coordinate system before rotation)
 
-At least I think it's strange that the origin after rotation is outside the screen.  
+At least It's strange that the origin after rotation is outside the screen, I think.  
 Also, shouldn't the movable range of the mouse be the same as Widget application ?
 
 On the other hand, the following is the specification of the display system, so it is not a problem, I think.
 * Since it is an OpenGL application, the display contents are not rotated.
+
+This issue is confirmed in the following environment.
+* Qt 5.15.10
+  * i.MX8
+  * Jetson Xavier NX (JetPack 4.6.2)
+* Qt 6.4.1
+  * Jetson Xavier NX (JetPack 4.6.2)
+
 
 ## Related Links
 - [QTBUG-103851](https://bugreports.qt.io/browse/QTBUG-103851) Wayland compositor with QT_QPA_EGLFS_ROTATION shows window out of alignment
@@ -42,28 +50,25 @@ On the other hand, the following is the specification of the display system, so 
   * Draw blocks which size is 128x128. However, if it goes out of the window area, do not.
 
 ### How to test
-Tested with
-* Qt 5.15.10
-* i.MX8 with 1024x600 LCD
 
 1. Widget application is fine. 
 ```bash
 $ QT_QPA_PLATFORM=eglfs QT_QPA_EGLFS_ROTATION=0 widgetMatrix
 ```
-![screenshot](images/widget-eglfs-without-rotation.jpg)
+![widget-eglfs-without-rotation](images/widget-eglfs-without-rotation.jpg)
 
 2. with rotation, Widget application is fine. 
 ```bash
 $ QT_QPA_PLATFORM=eglfs QT_QPA_EGLFS_ROTATION=90 widgetMatrix
 ```
-![screenshot](images/widget-eglfs-with-rotation.jpg)
+![widget-eglfs-with-rotation](images/widget-eglfs-with-rotation.jpg)
 
 3. Displaying QWaylandCompositor without rotation is fine.
 ```bash
 $ QT_QPA_PLATFORM=eglfs QT_QPA_EGLFS_ROTATION=0 minimal-cpp &
 $ QT_QPA_PLATFORM=wayland widgetMatrix
 ```
-![screenshot](images/wayland-without-rotation.jpg)
+![wayland-without-rotation](images/wayland-without-rotation.jpg)
 
 4. Try displaying QWaylandCompositor with rotation. 
 ```bash
@@ -73,4 +78,4 @@ $ QT_QPA_PLATFORM=wayland widgetMatrix
 * the child window whose position is (0,0), is displayed but partly. it seems the origin is gone the out of screen.
 * the aspect ratio of the mouse cursor is not 1:1.
 * if the user moves Mouse down, the cursor will move to left (because of rotate), and stop at the green area.
-![screenshot](images/wayland-with-rotation.jpg)
+![wayland-with-rotation](images/wayland-with-rotation.jpg)
